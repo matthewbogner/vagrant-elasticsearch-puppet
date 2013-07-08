@@ -55,6 +55,20 @@ class elasticsearch($version = "0.19.10", $seeds = "") {
 	  content => template('elasticsearch/elasticsearch.yml.erb'),
 	}
 	->
+	exec { 'es-servicewrapper-runasuser':
+	  command => "sed -i -e 's/#RUN_AS_USER=/RUN_AS_USER=root/' /usr/local/share/elasticsearch-$version/bin/service/elasticsearch",
+	  onlyif => "cat /usr/local/share/elasticsearch-$version/bin/service/elasticsearch | grep '#RUN_AS_USER'",
+	}
+	->
+	exec { 'es-servicewrapper-ulimit':
+	  command => "sed -i -e 's/#ULIMIT_N=/ULIMIT_N=64000/' /usr/local/share/elasticsearch-$version/bin/service/elasticsearch",
+	  onlyif => "cat /usr/local/share/elasticsearch-$version/bin/service/elasticsearch | grep '#ULIMIT_N'",
+	}
+	->
+	file { '/etc/security/limits.d/80-nofile.conf':
+	  content => template('elasticsearch/80-nofile.conf')
+	}
+	->
 	exec { 'es-install-head-plugin': 
 	  command => "/usr/local/share/elasticsearch-$version/bin/plugin -install mobz/elasticsearch-head",
 	  creates => "/usr/local/share/elasticsearch-$version/plugins/head",
