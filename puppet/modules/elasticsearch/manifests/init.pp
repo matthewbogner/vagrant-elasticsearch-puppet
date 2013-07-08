@@ -16,6 +16,13 @@ class elasticsearch($version = "0.19.10", $seeds = "") {
 	  ensure => directory,
 	}
 	->
+	user { 'elasticsearch':
+      ensure     => present,
+      uid        => '507',
+      # gid        => 'elasticsearch',
+      home       => "/usr/local/share/elasticsearch-$version",
+    }
+	->
 	exec { 'es-download-tarball':
       command => "wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-$version.tar.gz -O elasticsearch.tar.gz",
       cwd => "$tmpDir",
@@ -56,7 +63,7 @@ class elasticsearch($version = "0.19.10", $seeds = "") {
 	}
 	->
 	exec { 'es-servicewrapper-runasuser':
-	  command => "sed -i -e 's/#RUN_AS_USER=/RUN_AS_USER=root/' /usr/local/share/elasticsearch-$version/bin/service/elasticsearch",
+	  command => "sed -i -e 's/#RUN_AS_USER=/RUN_AS_USER=elasticsearch/' /usr/local/share/elasticsearch-$version/bin/service/elasticsearch",
 	  onlyif => "cat /usr/local/share/elasticsearch-$version/bin/service/elasticsearch | grep '#RUN_AS_USER'",
 	}
 	->
@@ -73,6 +80,10 @@ class elasticsearch($version = "0.19.10", $seeds = "") {
 	  command => "/usr/local/share/elasticsearch-$version/bin/plugin -install mobz/elasticsearch-head",
 	  creates => "/usr/local/share/elasticsearch-$version/plugins/head",
 	}
+	->
+	exec { 'es-chown-everything':
+        command => "chown -R elasticsearch:elasticsearch /usr/local/share/elasticsearch-$version/",
+    }
 	->
 	service { 'elasticsearch':
 	  ensure => running,
