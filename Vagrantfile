@@ -32,7 +32,7 @@ Vagrant.configure("2") do |config2|
       config.vm.hostname = server['name']
       config.vm.network :private_network, ip: server['ip']
       config.vm.provider :virtualbox do |vb|
-        vb.customize ["modifyvm", :id, "--memory", "1024"]
+        vb.customize ["modifyvm", :id, "--memory", "2048"]
       end
 
       config.vm.provision :puppet do |puppet|

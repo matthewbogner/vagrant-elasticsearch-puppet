@@ -19,7 +19,6 @@ class elasticsearch($version = "0.19.10", $seeds = "") {
 	user { 'elasticsearch':
       ensure     => present,
       uid        => '507',
-      # gid        => 'elasticsearch',
       home       => "/usr/local/share/elasticsearch-$version",
     }
 	->
@@ -79,6 +78,11 @@ class elasticsearch($version = "0.19.10", $seeds = "") {
 	exec { 'es-install-head-plugin': 
 	  command => "/usr/local/share/elasticsearch-$version/bin/plugin -install mobz/elasticsearch-head",
 	  creates => "/usr/local/share/elasticsearch-$version/plugins/head",
+	}
+	->
+	exec { 'es-install-paramedic-plugin':
+	  command => "/usr/local/share/elasticsearch-$version/bin/plugin -install karmi/elasticsearch-paramedic",
+	  creates => "/usr/local/share/elasticsearch-$version/plugins/paramedic",
 	}
 	->
 	exec { 'es-chown-everything':
