@@ -18,7 +18,7 @@ seeds = ""
   servers << {'name' => name,
               'ip' => ip,
               'num' => i.to_s,
-	      'port' => (i + 9200).to_s
+              'port' => (i + 9200).to_s
              }
 end
 
